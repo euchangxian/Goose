@@ -150,24 +150,35 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+IncludeBlocks:   Regroup
 IncludeCategories:
-  - Regex:           '^<ext/.*\.h>'
-    Priority:        2
+# 1. Main Header
+  # This matches the header with the same name as the source file
+  - Regex:           '^"([^"]*)\.(h|hpp|hxx)"'
+    Priority:        0
     SortPriority:    0
     CaseSensitive:   false
-  - Regex:           '^<.*\.h>'
-    Priority:        1
+
+  # 2. Project Local Headers
+  - Regex:           '^"([^"]*)"'
+    Priority:        10
     SortPriority:    0
     CaseSensitive:   false
+
+  # 3. Third-party or specific libraries
+  # E.g., Boost:
+  - Regex:           '^<boost/.*'
+    Priority:        20
+    SortPriority:    0
+    CaseSensitive:   false
+
+  # 4. Standard Library Headers
+  # This matches all remaining angle-bracket includes
   - Regex:           '^<.*'
-    Priority:        2
+    Priority:        30
     SortPriority:    0
     CaseSensitive:   false
-  - Regex:           '.*'
-    Priority:        3
-    SortPriority:    0
-    CaseSensitive:   false
+
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false

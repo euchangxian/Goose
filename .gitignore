@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+build/
+.cache/
+compile_commands.json
