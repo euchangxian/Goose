@@ -32,7 +32,7 @@ operations: Transform, Filter, Collect, Fan-Out, etc.
 
 In the simplest case, these are just sequential function calls:
 
-```C++
+```c++
 int increment(int x) {
   return x + 1;
 }
@@ -106,14 +106,14 @@ stages do not need to know the specific type of the "Then" stage, only that it e
 In the Run-Time version, we define an "interface" that allows us to define a
 pipeline that processes `std::int64_t`s:
 
-```C++
+```c++
 struct Then {
   virtual void process(std::int64_t) = 0;
   virtual std::int64_t result() const = 0;
 };
 ```
 
-```C++
+```c++
 struct Pipeline {
   Store store;
   Doubler doubler{&store}; // Doubler wraps Store
@@ -121,7 +121,7 @@ struct Pipeline {
 } storage;
 ```
 
-```C++
+```c++
 Then* pipeline = &storage.adder; // gets the entry-point into the Pipeline.
 pipeline->process(x); // adder.process -> doubler.process -> store.process
 return pipeline->result(); // returns final value of x.
@@ -169,7 +169,7 @@ In this version, we use C++ templates to achieve (**more!!**) flexibility withou
 
 The key difference: instead of storing a pointer to the `Then` stage, the `Then` stage is encoded directly in the template parameter.
 
-```C++
+```c++
 struct Store {
   std::int64_t result_;
   void process(std::int64_t x) { result_ = x; }
@@ -189,7 +189,7 @@ struct Adder : Then {
 using Pipeline = Adder<Doubler<Store>>;
 ```
 
-```C++
+```c++
 Pipeline pipeline;
 pipeline.process(x);
 return pipeline.result();
@@ -239,7 +239,7 @@ See source code on [Compiler Explorer](https://godbolt.org/z/3GfMGKWP7).
 
 ### Simplified Abstract Pipeline
 
-```
+```c++
 x -> x+1 -> (x+1) * 2
 ```
 
@@ -247,7 +247,7 @@ x -> x+1 -> (x+1) * 2
 
 The entire pipeline is inlined, and optimised to a single `lea` instruction
 
-```assembly
+```asm
 compiletime::process(long):
         lea     rax, [rdi+2+rdi]
         ret
@@ -264,7 +264,7 @@ into pure arithmetic - a single instruction!
 Even with `-O3` optimisations, virtual function calls cannot be inlined because
 the compiler does not know which concrete functions will be called at runtime.
 
-```assembly
+```asm
 # Entry Point: Demonstrates vtable lookup overhead
 runtime::process(long):
         # pipeline->process()
